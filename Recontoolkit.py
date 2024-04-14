@@ -112,7 +112,7 @@ def http_header_analysis(target):
         for header, value in response.headers.items():
             print(f"{header}: {value}")
 
-        # Analyze cookies
+        # A\alyze cookies
         cookies = response.cookies
         if cookies:
             print(f"{NEON_BLUE}\nCookies:{RESET_COLOR}")
