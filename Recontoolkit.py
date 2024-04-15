@@ -104,22 +104,18 @@ def http_header_analysis(target):
     try:
         print(f"{NEON_BLUE}HTTP Header Analysis:{RESET_COLOR}")
 
-        # Send a GET request to the target URL
         response = requests.get(f"https://{target}", timeout=10, verify=False)
 
-        # Print the HTTP headers
         print(f"{NEON_BLUE}HTTP Headers:{RESET_COLOR}")
         for header, value in response.headers.items():
             print(f"{header}: {value}")
 
-        # A\alyze cookies
         cookies = response.cookies
         if cookies:
             print(f"{NEON_BLUE}\nCookies:{RESET_COLOR}")
             for cookie in cookies:
                 print(f"{cookie.name}: {cookie.value}")
 
-        # Extract server information from the 'Server' header
         server_header = response.headers.get('Server')
         if server_header:
             print(f"{NEON_BLUE}\nServer Information:{RESET_COLOR}")
@@ -133,10 +129,10 @@ def http_header_analysis(target):
 
 def main():
     target = input(f"{NEON_BLUE}Enter the target domain name: {RESET_COLOR}")
-    # nslookup_info(target)
-    # geolocate(target)
-    # port_scan(target)
-    # dns_enum(target)
+    nslookup_info(target)
+    geolocate(target)
+    port_scan(target)
+    dns_enum(target)
     http_header_analysis(target)
 
 
