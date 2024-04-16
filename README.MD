@@ -31,7 +31,7 @@ This Python script serves as a comprehensive reconnaissance (recon) toolkit desi
 1. **Run the Script**: Execute the script using Python.
 
     ```bash
-    python recontoolkit.py
+    python Recontoolkit.py
     ```
 
 2. **Enter Target Domain**: When prompted, enter the target domain name.
