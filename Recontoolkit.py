@@ -134,7 +134,8 @@ def main():
     port_scan(target)
     dns_enum(target)
     http_header_analysis(target)
-
+    #dnsrecon to be added
+    #wafw00f aswell
 
 if __name__ == "__main__":
     main()
