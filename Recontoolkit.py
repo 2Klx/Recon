@@ -95,8 +95,11 @@ def port_scan(target):
         s.settimeout(1)
         result = s.connect_ex((target, portnumber))
         if result == 0:
-            print(f"\n{yellow}Port {portnumber} is open{yellow}\n")
+            print(f"\n{yellow}Port {portnumber} is open.{yellow}\n")
+        elif result != 0:
+            print(f"Port {red}\n{portnumber} is not open.{reset}")
         s.close()
+
         port_scan(target)
 
     elif scanchoice == "2":
@@ -138,7 +141,7 @@ def port_scan(target):
             if result == 0:
                 service = port_list.get(port, "Unknown")
                 print(f"\n{yellow}Port {port} ({service}) is open{reset}")
-            s.close()
+                s.close()
         port_scan(target)
 
 
