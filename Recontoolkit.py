@@ -15,6 +15,12 @@ yellow = '\x1b[33m'
 blue = '\033[94m'
 red = '\u001b[31m'
 
+choice = input("Is the target https or just http? (1/2) : ")
+if choice == "1":
+    security = "https://"
+else:
+    security = "http://"
+
 
 def dns_recon(target):
     print(lightblue + "______________________________________________________________________________________" + reset)
@@ -36,10 +42,13 @@ def dns_recon(target):
 
 
 def osdetection(target):
-    print(lightblue + "______________________________________________________________________________________" + reset)
-    print(f"{blue}\nOS running on the Server is :\n ")
-    response = requests.head("https://" + target)
-    print(yellow + response.headers.get('Server') + reset)
+    try:
+        print(lightblue + "______________________________________________________________________________________" + reset)
+        print(f"{blue}\nOS running on the Server is:\n ")
+        response = requests.head(security + target)
+        print(yellow + response.headers.get('Server') + reset)
+    except Exception as e:
+        print("An error occurred:", e)
 
 
 def wappalyzer(target):
@@ -47,7 +56,7 @@ def wappalyzer(target):
     print(f"{blue}\nWeb Technologies Used on the Site are:\n {reset}")
     warnings.filterwarnings("ignore", message="""Caught 'unbalanced parenthesis at position 119' compiling regex""", category=UserWarning)
     wapp = Wappalyzer.latest()
-    webpage = WebPage.new_from_url("https://" + target)
+    webpage = WebPage.new_from_url(security + target)
     result = wapp.analyze(webpage)
     print(f"{yellow}{result}{reset}")
 
@@ -79,16 +88,18 @@ def dns_enum(target):
 def port_scan(target):
     print(lightblue + "______________________________________________________________________________________" + reset)
     print(blue + "\nPort Scanning will be done on " + target + "\n" + reset)
-    scanchoice = input(f"{blue}What scan do you want? \nCustom port or Standard Preset?\nChoose (C/S) \n{reset}")
-    if scanchoice.lower() == "c":
+    scanchoice = input(f"{blue}What scan do you want? \n1. Custom port  \n2. Standard Preset? \n3. Exit\nChoose (1/2/3) \n{reset}")
+    if scanchoice == "1":
         portnumber = int(input(blue + "Give Port- " + reset))
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(1)
         result = s.connect_ex((target, portnumber))
         if result == 0:
-            print(f"{yellow}Port {portnumber} is open{yellow}\n")
+            print(f"\n{yellow}Port {portnumber} is open{yellow}\n")
         s.close()
-    else:
+        port_scan(target)
+
+    elif scanchoice == "2":
         print(f"{blue}Scanning ports on {target}...\n{reset}")
         port_list = {21: "FTP",
                      22: "SSH",
@@ -126,8 +137,9 @@ def port_scan(target):
             result = s.connect_ex((target, port))
             if result == 0:
                 service = port_list.get(port, "Unknown")
-                print(f"{yellow}Port {port} ({service}) is open{reset}")
+                print(f"\n{yellow}Port {port} ({service}) is open{reset}")
             s.close()
+        port_scan(target)
 
 
 def nslookup_info(target):
@@ -161,8 +173,7 @@ def http_header_analysis(target):
     print(lightblue + "______________________________________________________________________________________" + reset)
     try:
         print(f"{blue}\nHTTP Header Analysis: \n{reset}")
-
-        response = requests.get(f"https://{target}", timeout=10, verify=False)
+        response = requests.get(f"{security}{target}", timeout=10, verify=False)
 
         print(f"{yellow}HTTP Headers:")
         for header, value in response.headers.items():
