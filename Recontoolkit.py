@@ -97,7 +97,7 @@ def port_scan(target):
         if result == 0:
             print(f"\n{yellow}Port {portnumber} is open.{yellow}\n")
         elif result != 0:
-            print(f"Port {red}\n{portnumber} is not open.{reset}")
+            print(f"\n{red}Port {portnumber} is not open.{reset}")
         s.close()
 
         port_scan(target)
