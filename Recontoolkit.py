@@ -1,24 +1,64 @@
 import socket
 import subprocess
 import sys
+import warnings
 import ipinfo
 import urllib3
 import requests
+from Wappalyzer import Wappalyzer, WebPage
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-darkblue = '\033[38;2;0;149;255m'
+lightblue = '\033[38;2;0;149;255m'
 reset = '\033[0m'
 yellow = '\x1b[33m'
 blue = '\033[94m'
-red= '\u001b[31m'
-def dns_enum(target):
-    print(yellow + "______________________________________________________________________________________" + reset)
+red = '\u001b[31m'
+
+
+def dns_recon(target):
+    print(lightblue + "______________________________________________________________________________________" + reset)
+    print(f"{blue}\nDNSRecon Installation/Verification{reset}")
+    subprocess.run(['sudo', '-S', 'apt-get', 'install', 'dnsrecon'], check=True)
+    print(f"{yellow}\nDNSRECON is running: \n ")
     try:
-        print(f"{blue}\n Sublister Installation Verification{reset}")
+
+        result = subprocess.run(['dnsrecon', '-d', target], capture_output=True, text=True)
+
+        if result.returncode == 0:
+
+            print(result.stdout + reset)
+        else:
+            print(f"Error executing dnsrecon: {result.stderr}")
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+
+def osdetection(target):
+    print(lightblue + "______________________________________________________________________________________" + reset)
+    print(f"{blue}\nOS running on the Server is :\n ")
+    response = requests.head("https://" + target)
+    print(yellow + response.headers.get('Server') + reset)
+
+
+def wappalyzer(target):
+    print(lightblue + "______________________________________________________________________________________" + reset)
+    print(f"{blue}\nWeb Technologies Used on the Site are:\n {reset}")
+    warnings.filterwarnings("ignore", message="""Caught 'unbalanced parenthesis at position 119' compiling regex""", category=UserWarning)
+    wapp = Wappalyzer.latest()
+    webpage = WebPage.new_from_url("https://" + target)
+    result = wapp.analyze(webpage)
+    print(f"{yellow}{result}{reset}")
+
+
+def dns_enum(target):
+    print(lightblue + "______________________________________________________________________________________" + reset)
+    try:
+        print(f"{blue}\nSublister Installation Verification{reset}")
         subprocess.run(['sudo', '-S', 'apt-get', 'install', 'sublist3r'], check=True)
-        print(f"{blue}\n Installation Verification Complete{reset}")
-        print(f"{yellow}\n Sublist3r will now start{reset}")
+        print(f"{blue}Installation Verification Complete{reset}")
+        print(f"{yellow}\nSublist3r will now start\n{reset}")
 
         process = subprocess.Popen(['python', '/usr/lib/python3/dist-packages/sublist3r.py', '-d', target],
                                    stdout=subprocess.PIPE,
@@ -37,11 +77,11 @@ def dns_enum(target):
 
 
 def port_scan(target):
-    print(yellow + "______________________________________________________________________________________" + reset)
-    print(blue+"\n Port Scanning will be done on "+target+"\n"+reset)
+    print(lightblue + "______________________________________________________________________________________" + reset)
+    print(blue + "\nPort Scanning will be done on " + target + "\n" + reset)
     scanchoice = input(f"{blue}What scan do you want? \nCustom port or Standard Preset?\nChoose (C/S) \n{reset}")
     if scanchoice.lower() == "c":
-        portnumber = int(input(blue+"Give Port- "+reset))
+        portnumber = int(input(blue + "Give Port- " + reset))
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(1)
         result = s.connect_ex((target, portnumber))
@@ -49,7 +89,7 @@ def port_scan(target):
             print(f"{yellow}Port {portnumber} is open{yellow}\n")
         s.close()
     else:
-        print(f"{blue}\nScanning ports on {target}...\n{reset}")
+        print(f"{blue}Scanning ports on {target}...\n{reset}")
         port_list = {21: "FTP",
                      22: "SSH",
                      23: "Telnet",
@@ -91,18 +131,18 @@ def port_scan(target):
 
 
 def nslookup_info(target):
-    print(yellow + "______________________________________________________________________________________" + reset)
+    print(lightblue + "______________________________________________________________________________________" + reset)
     print(f"{blue}\nFetching DNS information for {target}...{reset}\n")
     try:
         result = subprocess.run(['nslookup', target], stdout=subprocess.PIPE, text=True)
-        print(yellow+result.stdout+reset)
+        print(yellow + result.stdout + reset)
     except FileNotFoundError:
         print(f"{blue}nslookup not found. Please install it.{reset}")
 
 
 def geolocate(target):
-    print(yellow + "______________________________________________________________________________________" + reset)
-    print(blue+"\nGeoLocating the Target - "+target+reset+"\n")
+    print(lightblue + "______________________________________________________________________________________" + reset)
+    print(blue + "\nGeoLocating the Target - " + target + reset + "\n")
     access_token = 'b3abfbb0ebe29c'
     handler = ipinfo.getHandler(access_token)
 
@@ -118,7 +158,7 @@ def geolocate(target):
 
 
 def http_header_analysis(target):
-    print(yellow + "______________________________________________________________________________________" + reset)
+    print(lightblue + "______________________________________________________________________________________" + reset)
     try:
         print(f"{blue}\nHTTP Header Analysis: \n{reset}")
 
@@ -146,20 +186,31 @@ def http_header_analysis(target):
 
 
 def main():
-    print(red+"""               ____  _____ ____ ___  _   _   _____ ___   ___  _     _  _____ _____ 
+    subprocess.run('clear')
+    subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
+    print(red + """               ____  _____ ____ ___  _   _   _____ ___   ___  _     _  _____ _____ 
               |  _ \| ____/ ___/ _ \| \ | | |_   _/ _ \ / _ \| |   | |/ /_ _|_   _|
               | |_) |  _|| |  | | | |  \| |   | || | | | | | | |   | ' / | |  | |  
               |  _ <| |__| |__| |_| | |\  |   | || |_| | |_| | |___| . \ | |  | |  
-              |_| \_\_____\____\___/|_| \_|   |_| \___/ \___/|_____|_|\_\___| |_|   by 2Klx"""+reset)
+              |_| \_\_____\____\___/|_| \_|   |_| \___/ \___/|_____|_|\_\___| |_|   by 2Klx""" + reset)
+    print(red + "______________________________________________________________________________________" + reset)
     target = input(f"{blue}Enter the target domain name: \n{reset}")
+    osdetection(target)
+    wappalyzer(target)
     nslookup_info(target)
     geolocate(target)
+    http_header_analysis(target)
     port_scan(target)
     dns_enum(target)
-    http_header_analysis(target)
-    print(yellow + "______________________________________________________________________________________" + reset)
-    # dnsrecon to be added capthish and banner grabbing
-    # wafw00f aswell
+    dns_recon(target)
+
+    print(red + "______________________________________________________________________________________" + reset)
+
+    print(red + """\n                 _____ _   _ ____  
+                | ____| \ | |  _ \ 
+                |  _| |  \| | | | |
+                | |___| |\  | |_| |
+                |_____|_| \_|____/ """ + reset)
 
 
 if __name__ == "__main__":
